@@ -1,4 +1,4 @@
-Analysis of LCWMD ‘Diurnal Exceedences’ of Class C DO Standards
+Analysis of LCWMD ‘Diurnal Exceedances’ of Class C DO Standards
 ================
 Curtis C. Bohlen, Casco Bay Estuary Partnership.
 01/12/2021
@@ -51,9 +51,9 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
 
 The Long Creek Watershed, almost three and a half square miles in area,
 is dominated by commercial land use. The Maine Mall is one of the
-largest land owners in the watershed, and it is surrounded by a range of
+largest landowners in the watershed, and it is surrounded by a range of
 commercial businesses, from medical offices, to car washes. About a
-third of the watershed in impervious surfaces like roads, parking lots,
+third of the watershed is impervious surfaces like roads, parking lots,
 and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a
@@ -272,7 +272,7 @@ exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
 
 ## Data Corrections
 
-### Anomolous Depth Values
+### Anomalous Depth Values
 
 Several depth observations in the record appear highly unlikely. In
 particular, several observations show daily median water depths over 15
@@ -492,7 +492,7 @@ xt_pct(~Year + ClassC_PctSat, exceeds)
 #> 2018   427  590 42.0
 ```
 
-The two oxygen-related exceedences are correlated. IN particular, no
+The two oxygen-related exceedences are correlated. In particular, no
 samples met the Percent Saturation standard, but failed the dissolved
 oxygen standard.
 
