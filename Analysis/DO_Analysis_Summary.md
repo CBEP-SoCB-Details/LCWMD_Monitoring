@@ -80,9 +80,9 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
 
 The Long Creek Watershed, almost three and a half square miles in area,
 is dominated by commercial land use. The Maine Mall is one of the
-largest land owners in the watershed, and it is surrounded by a range of
+largest landowners in the watershed, and it is surrounded by a range of
 commercial businesses, from medical offices, to car washes. About a
-third of the watershed in impervious surfaces like roads, parking lots,
+third of the watershed is impervious surfaces like roads, parking lots,
 and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a
@@ -111,7 +111,7 @@ data sets, and recapitulate and extend their analyses.
 
 The primary question we ask in this Notebook, is whether water quality
 criteria pertaining to levels of dissolved oxygen are met. In
-poarticular, we explore various ways of modelling those probabilities,
+particular, we explore various ways of modelling those probabilities,
 and settle on modelling only summertime probabilities as the most
 informative for State of Casco Bay readers.
 
@@ -132,7 +132,7 @@ Maine’s Class B water quality standards call for dissolved oxygen above
 7 mg/l, with percent saturation above 75%. The Class C Standards, which
 apply to almost all of Long Creek, call for dissolved oxygen above 5
 mg/l, with percent saturation above 60%. In addition, for class C
-conditions, the thirty day average dissolved oxygen muststay above 6.5
+conditions, the thirty day average dissolved oxygen must stay above 6.5
 mg/l.
 
 ### Chloride
@@ -166,7 +166,7 @@ There are no legally binding Maine criteria for maximum stream
 temperature, but we can back into thresholds based on research on
 thermal tolerance of brook trout in streams. A study from Michigan and
 Wisconsin, showed that trout are found in streams with daily mean water
-temperatures as high as 25.3°C, but only if the period of exceedence of
+temperatures as high as 25.3°C, but only if the period of exceedance of
 that daily average temperature is short – only one day. Similarly, the
 one day daily maximum temperature above which trout were never found was
 27.6°C. That generates two temperature criteria, one for daily averages,
@@ -350,7 +350,7 @@ rm(fn, fpath, parent, sibling, sibfldnm)
 
 ## Data Corrections
 
-### Anomolous Depth Values
+### Anomalous Depth Values
 
 Several depth observations in the record appear highly unlikely. In
 particular, several observations show daily median water depths over 15
@@ -403,7 +403,7 @@ full_data <- full_data %>%
                               NA_real_, Chl_Median))
 ```
 
-### Anomolous Dissolved Oxygen and Chloride Values
+### Anomalous Dissolved Oxygen and Chloride Values
 
 #### Site S03, end of 2016
 
@@ -445,7 +445,7 @@ sonde-related data.
         chlorides, and follows a brief rise and rapid fall in water
         temperature.  
 -   Recovery in DO several days later (1/28/2016) corresponds to a drop
-    in chlorides, and a BREIF increase on water depth, but there is no
+    in chlorides, and a BRIEF increase on water depth, but there is no
     related change in temperature.  
 -   Ongoing brief spikes in DO appear to correspond to drops in
     chlorides or conductivity, and very brief small blips in water
@@ -952,7 +952,7 @@ predictors, we see a difference between sites. Air temperature is a lot
 less important after we fit a stream temperature term. Stream
 temperature ends up as by far the most important predictor. One
 challenge we have seen in too many other analyses is that with the large
-data sets we have, lots of small signals are statistically significant.
+datasets we have, lots of small signals are statistically significant.
 
 # GAMM Analysis
 
@@ -1123,7 +1123,7 @@ plot(do_gam)
 The interesting feature here is that effects of both air temperature and
 water temperature are nearly linear, with water temperature much larger.
 
-Lets try shifting the water temp to a linear term, and dropping the air
+Let's try shifting the water temp to a linear term, and dropping the air
 temp term. We have to be back again in the world where confounded
 factors will stop the analysis. We have to drop the Site by Year term.
 
@@ -1729,7 +1729,7 @@ temperature and flow.
 
 We should be careful, as data is only available for selected years for
 three of our sites, including SO5, S06B and S17. This means we may be
-overfitting the trends fror some of those sites based on a limited
+overfitting the trends for some of those sites based on a limited
 number of years.
 
 We thought this would be a slow model to fit, so we save a version, but
