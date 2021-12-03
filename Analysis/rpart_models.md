@@ -1,4 +1,4 @@
-Classificatin Tree Models of ‘Diurnal Exceedences’ on Long Creek
+Classificating Tree Models of ‘Diurnal Exceedances’ on Long Creek
 ================
 Curtis C. Bohlen, Casco Bay Estuary Partnership.
 01/12/2021
@@ -52,9 +52,9 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
 
 The Long Creek Watershed, almost three and a half square miles in area,
 is dominated by commercial land use. The Maine Mall is one of the
-largest land owners in the watershed, and it is surrounded by a range of
+largest landowners in the watershed, and it is surrounded by a range of
 commercial businesses, from medical offices, to car washes. About a
-third of the watershed in impervious surfaces like roads, parking lots,
+third of the watershed is impervious surfaces like roads, parking lots,
 and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a
@@ -133,7 +133,7 @@ There are no legally binding Maine criteria for maximum stream
 temperature, but we can back into thresholds based on research on
 thermal tolerance of brook trout in streams. A study from Michigan and
 Wisconsin, showed that trout are found in streams with daily mean water
-temperatures as high as 25.3°C, but only if the period of exceedence of
+temperatures as high as 25.3°C, but only if the period of exceedance of
 that daily average temperature is short – only one day. Similarly, the
 one day daily maximum temperature above which trout were never found was
 27.6°C. That generates two temperature criteria, one for daily averages,
@@ -289,7 +289,7 @@ exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
 
 ## Data Corrections
 
-### Anomolous Depth Values
+### Anomalous Depth Values
 
 Several depth observations in the record appear highly unlikely. In
 particular, several observations show daily median water depths over 15
@@ -869,7 +869,7 @@ rpart.plot(temp_tree)
 <img src="rpart_models_files/figure-gfm/plot_temp_tree-1.png" style="display: block; margin: auto;" />
 
 That’s just too simple. What the tree tells us is that:  
-\* Violations of the Acute threshold are Exceptionally rare.  
+\* Violations of the Acute threshold are exceptionally rare.  
 \* Stream temperature extremes only happen on really hot days (with air
 temperature above 34.2 degrees C, or about 90 degrees F).  
 \* But even then, some years are worse than others.
