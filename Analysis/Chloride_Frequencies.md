@@ -50,9 +50,9 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership
 
 The Long Creek Watershed, almost three and a half square miles in area,
 is dominated by commercial land use. The Maine Mall is one of the
-largest land owners in the watershed, and it is surrounded by a range of
+largest landowners in the watershed, and it is surrounded by a range of
 commercial businesses, from medical offices, to car washes. About a
-third of the watershed in impervious surfaces like roads, parking lots,
+third of the watershed is impervious surfaces like roads, parking lots,
 and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a
@@ -696,7 +696,7 @@ emmeans(month_alt, ~ Site, cov.reduce = median,
 ## Models with Autocorrelated Error
 
 We fit a generalized linear mixed model, with autocorrelated error. Our
-primary interest, is in a GLM with an `covAR1()` correlation structure.
+primary interest is in a GLM with an `covAR1()` correlation structure.
 
 ### Fitting with glmmTMB
 
