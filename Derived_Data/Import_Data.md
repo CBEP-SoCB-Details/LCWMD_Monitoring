@@ -123,7 +123,7 @@ percent saturation, each observation is split into two columns, the
 first being the observation, and the second being labeled as “ND” in the
 original data.
 
-Lets figure out what type of values those include.
+Let's figure out what type of values those include.
 
 ``` r
 fn <- "S01 Merged Pressure and Sonde.xlsx"
@@ -141,7 +141,7 @@ test.data %>% summarise()
 
     ## # A tibble: 1 x 0
 
-So, there is No data in those columns in the first spreadsheet. We need
+So, there is no data in those columns in the first spreadsheet. We need
 to check all available data, so I’ll go through each spreadsheet in turn
 and see whether these columns contain any non-missing values.
 
