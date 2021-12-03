@@ -328,7 +328,7 @@ There are no criteria for maximum stream temperature, but we can back
 into thresholds based on research on thermal tolerance of brook trout in
 streams. A study from Michigan and Wisconsin, showed that trout are
 found in streams with daily mean water temperatures as high as 25.3°C,
-but only if the period of exceedence of that daily average temperature
+but only if the period of exceedance of that daily average temperature
 is short – only one day. Similarly, the one day daily maximum
 temperature above which trout were not found was 27.6°C.
 
