@@ -30,7 +30,7 @@ Revised 7/21/2020
 
 Simple linear models of the LCWMD data assume that observations are
 independent, however, we know both on principal and from working with
-the data, that the different timeseries are auto- and cross-correlated
+the data, that the different time series are auto- and cross-correlated
 in complex ways.
 
 One challenge to analyzing these data in R is that the time series we
