@@ -3,23 +3,22 @@ Create Daily Summaries
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 Revised 7/21/2020
 
-  - [Load Libraries](#load-libraries)
-  - [Load Sonde Data](#load-sonde-data)
-      - [Calculate daily summaries](#calculate-daily-summaries)
-      - [Plot to confirm that did what we
-        want….](#plot-to-confirm-that-did-what-we-want.)
-  - [Load Weather Data](#load-weather-data)
-      - [Address trace precipitation](#address-trace-precipitation)
-  - [Combine data](#combine-data)
-      - [Graphic to check….](#graphic-to-check.)
-  - [Export data](#export-data)
-  - [Calculate Daily Exceedences](#calculate-daily-exceedences)
-      - [Thresholds](#thresholds)
-          - [Dissolved oxygen](#dissolved-oxygen)
-          - [Chloride](#chloride)
-          - [Temperature](#temperature)
-      - [Calculate Exceedances](#calculate-exceedances)
-  - [Export data](#export-data-1)
+-   [Load Libraries](#load-libraries)
+-   [Load Sonde Data](#load-sonde-data)
+    -   [Calculate Daily Summaries](#calculate-daily-summaries)
+    -   [Plot to Confirm That Worked](#plot-to-confirm-that-worked)
+-   [Load Weather Data](#load-weather-data)
+    -   [Address Trace Precipitation](#address-trace-precipitation)
+-   [Combine Data](#combine-data)
+    -   [Graphic to Check….](#graphic-to-check)
+-   [Export Data](#export-data)
+-   [Calculate Daily Exceedences](#calculate-daily-exceedences)
+    -   [Thresholds](#thresholds)
+        -   [Dissolved Oxygen](#dissolved-oxygen)
+        -   [Chloride](#chloride)
+        -   [Temperature](#temperature)
+    -   [Calculate Exceedances](#calculate-exceedances)
+-   [Export Data](#export-data-1)
 
 <img
   src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
@@ -32,6 +31,8 @@ library(readr)
 library(lubridate)
 ```
 
+    ## Warning: package 'lubridate' was built under R version 4.0.5
+
     ## 
     ## Attaching package: 'lubridate'
 
@@ -43,12 +44,22 @@ library(lubridate)
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+    ## Warning: package 'tidyverse' was built under R version 4.0.5
 
-    ## v ggplot2 3.3.2     v dplyr   1.0.2
-    ## v tibble  3.0.4     v stringr 1.4.0
-    ## v tidyr   1.1.2     v forcats 0.5.0
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+
+    ## v ggplot2 3.3.5     v dplyr   1.0.7
+    ## v tibble  3.1.6     v stringr 1.4.0
+    ## v tidyr   1.1.4     v forcats 0.5.1
     ## v purrr   0.3.4
+
+    ## Warning: package 'ggplot2' was built under R version 4.0.5
+
+    ## Warning: package 'tidyr' was built under R version 4.0.5
+
+    ## Warning: package 'dplyr' was built under R version 4.0.5
+
+    ## Warning: package 'forcats' was built under R version 4.0.5
 
     ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x lubridate::as.difftime() masks base::as.difftime()
@@ -66,13 +77,10 @@ sonde_data <- read_csv("Sonde_Data.csv",
      col_types = cols(D = col_number(),
                       Press = col_number(), 
                       pH = col_number()),
-     progress=FALSE) %>%
-  select(-X1)
+     progress=FALSE)
 ```
 
-    ## Warning: Missing column names filled in: 'X1' [1]
-
-## Calculate daily summaries
+## Calculate Daily Summaries
 
 This code generated an inordinate number of warnings, because minimums
 and maximums generate warnings whenever they are not well defined
@@ -114,7 +122,7 @@ daily_data <- daily_data %>%
   mutate(across(where(is.numeric), function(.x) ifelse(is.infinite(.x), NA, .x)))
 ```
 
-## Plot to confirm that did what we want….
+## Plot to Confirm That Worked
 
 ``` r
 plt <- daily_data %>% select(Site,sdate, DO_Median, Year) %>%
@@ -202,15 +210,16 @@ summary(weather_data)
     ##  Max.   : 244.00                      Max.   : 290.00                     
     ##                                       NA's   :1034
 
-## Address trace precipitation
+## Address Trace Precipitation
 
 Trace rainfall is included in the database by including a measurement
 value of zero for precipitation, and including the value “T” as the
 first element in PRCPattr.
 
-A total of 140 samples have the minimum value of measured rainfall of `r
-m/10` mm. (Reading the metadata, that value corresponds to converting
-1/100th of an inch to mm \(0.254mm = 2.54(cm/inch)(10mm/cm) /100\), and
+A total of 140 samples have the minimum value of measured rainfall of
+`r m/10` mm. (Reading the metadata, that value corresponds to converting
+1/100th of an inch to mm
+0.254*m**m* = 2.54(*c**m*/*i**n**c**h*)(10*m**m*/*c**m*)/100, and
 rounding). A higher frequency of observations, 385 of them, were recoded
 as having trace amounts of rainfall.
 
@@ -224,7 +233,7 @@ weather_data <- weather_data %>%
   mutate(is_trace = substr(PRCPattr,1,1)=='T')
 ```
 
-# Combine data
+# Combine Data
 
 We combine data using “match” because we have data for multiple sites in
 daily\_data, and therefore dates are not unique. Match correctly assigns
@@ -240,7 +249,7 @@ daily_data <- daily_data %>%
 rm(yesterdayprecip)
 ```
 
-## Graphic to check….
+## Graphic to Check….
 
 ``` r
 plt <- ggplot(daily_data, aes(x=Precip, y=Chl_Median)) + 
@@ -254,7 +263,7 @@ plt
 ```
 
     ## Warning: Transformation introduced infinite values in continuous x-axis
-    
+
     ## Warning: Transformation introduced infinite values in continuous x-axis
 
     ## `geom_smooth()` using formula 'y ~ x'
@@ -264,13 +273,14 @@ plt
     ## Warning: Removed 2411 rows containing missing values (geom_point).
 
 ![](Make_Daily_Summaries_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 That shows what is almost certainly a significant, but weak correlation.
 Salt is diluted by rainfall. Note the clear vertical separation by
 sites. Site provides a much clearer signal than does precipitation
 alone. We could continue with this graphical analysis, but this calls
 out for a hierarchical model.
 
-# Export data
+# Export Data
 
 ``` r
 write_csv(daily_data, 'Daily_Data.csv', na = '')
@@ -285,7 +295,7 @@ Fail” for each water quality standard or threshold
 
 We have only a few criteria to look at:
 
-### Dissolved oxygen
+### Dissolved Oxygen
 
 Maine’s Class B standards call for dissolved oxygen above 7 mg/l, with
 percent saturation above 75%. The Class C Standards, which apply to
@@ -328,7 +338,7 @@ There are no criteria for maximum stream temperature, but we can back
 into thresholds based on research on thermal tolerance of brook trout in
 streams. A study from Michigan and Wisconsin, showed that trout are
 found in streams with daily mean water temperatures as high as 25.3°C,
-but only if the period of exceedence of that daily average temperature
+but only if the period of exceedance of that daily average temperature
 is short – only one day. Similarly, the one day daily maximum
 temperature above which trout were not found was 27.6°C.
 
@@ -365,7 +375,7 @@ exceedance_data <- daily_data %>%
   select(-DO_Min, -PctSat_Min, -Chl_Max, -T_Max, -T_Mean)
 ```
 
-# Export data
+# Export Data
 
 ``` r
 write.csv(exceedance_data, 'Exceeds_Data.csv')

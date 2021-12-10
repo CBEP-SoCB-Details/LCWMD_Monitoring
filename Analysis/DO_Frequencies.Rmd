@@ -1,5 +1,5 @@
 ---
-title: "Analysis of LCWMD 'Diurnal Exceedences' of Class C DO Standards"
+title: "Analysis of LCWMD 'Diurnal Exceedances' of Class C DO Standards"
 author: "Curtis C. Bohlen, Casco Bay Estuary Partnership."
 date: "01/12/2021"
 output:
@@ -20,10 +20,10 @@ knitr::opts_chunk$set(fig.align = 'center',
 
 # Introduction
 The Long Creek Watershed, almost three and a half square miles in area, is
-dominated by commercial land use. The Maine Mall is one of the largest land
-owners in the watershed, and it is surrounded by a range of commercial
+dominated by commercial land use. The Maine Mall is one of the largest 
+landowners in the watershed, and it is surrounded by a range of commercial
 businesses, from medical offices, to car washes.  About a third of the watershed
-in impervious surfaces like roads, parking lots, and rooftops.
+is impervious surfaces like roads, parking lots, and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a Clean
 Water Act permit for stormwater discharges from their property.  The LCWMD
@@ -153,7 +153,6 @@ looking at chlorides. In particular, it does not include stream flow estimates
 fn <- "Exceeds_Data.csv"
 exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
   mutate(IC=Site_IC_Data$CumPctIC[match(Site, Site_IC_Data$Site)]) %>%
-  select(-X1) %>%
   filter(Year < 2019) %>%
   mutate(Site = factor(Site, levels=levels(Site_IC_Data$Site)),
          year_f = factor(Year),
@@ -168,7 +167,7 @@ exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
 ```
 
 ## Data Corrections
-### Anomolous Depth Values
+### Anomalous Depth Values
 Several depth observations in the record appear highly unlikely. In particular,
 several observations show daily median water depths over 15 meters. A few other
 observations show daily median depths over 4 meters, which also looks unlikely
@@ -184,6 +183,7 @@ instability of the pressure sensors, it might make sense to remove them all.
 
 Note that removing depth observations from Site S05  will remove those DATES
 from any model that uses the `FlowIndex` variable (see below) as a predictor.
+
 ```{r correct_depth_data}
 exceeds <- exceeds %>%
   mutate(D_Median = if_else(D_Median > 4, NA_real_, D_Median),
@@ -197,6 +197,7 @@ or not, it has  high leverage in several models, and we suspect a
 transcription error of some sort.
 
 We remove the Chloride value from the data.
+
 ```{r correct_chloride_data}
 exceeds <- exceeds %>%
   mutate(ChlCCC = if_else(Site == 'S06B' & Year > 2014,
@@ -206,7 +207,7 @@ exceeds <- exceeds %>%
 ```
 
 
-### Anomolous Dissolved Oxygen and Chloride Values
+### Anomalous Dissolved Oxygen and Chloride Values
 #### Site S03, end of 2016
 We noted  extreme dissolved oxygen data at the end of 2016.  Values were
 both extreme and highly variable.  (See discussion in the DO Analysis workbooks).
@@ -272,6 +273,7 @@ our general stream flow indicator.
 
 Stream flow at S05 is correlated with flow at other sites, although not all that
 closely correlated to flow in the downstream tributaries (S01 and S03).
+
 ```{r depth_correlations}
 exceeds %>%
   select(sdate, Site, lD_Median) %>%
@@ -280,6 +282,7 @@ exceeds %>%
   cor(use = 'pairwise', method = 'pearson')
 
 ```
+
 We use the log of the daily median flow at S05 as a general watershed-wide
 stream flow indicator, which we call `FlowIndex`.  We use the log of the raw
 median, to lessen the effect of the highly skewed distribution of stream depths
@@ -305,6 +308,7 @@ exceeds_two <- exceeds %>%
 # Initial Cross Tabs
 ## Utility Function
 This function just adds a percent summary column to a cross-tab.
+
 ```{r utility_fxn}
 xt_pct <- function(.form, .dat) {
   xt <- xtabs(.form, data = .dat)
@@ -324,8 +328,9 @@ xt_pct(~Year + ClassCDO, exceeds)
 xt_pct(~Year + ClassC_PctSat, exceeds)
 ```
 
-The two oxygen-related exceedences are correlated.  IN particular, no samples
+The two oxygen-related exceedances are correlated.  In particular, no samples
 met the Percent Saturation standard, but failed the dissolved oxygen standard.
+
 ```{r both_xtab}
 xtabs(~ ClassCDO + ClassC_PctSat, data = exceeds)
 ```
@@ -334,6 +339,7 @@ xtabs(~ ClassCDO + ClassC_PctSat, data = exceeds)
 ## Exploratory Graphics
 These are estimated as empirical relative frequencies, with error estimated 
 as two times the standard error of the estimate. 
+
 ```{r do_site_empirical_p}
 exceeds %>%
   group_by(Site, Year) %>%
@@ -347,6 +353,7 @@ exceeds %>%
   geom_pointrange(aes(ymin = do_p-2 * do_err, ymax = do_p + 2 * do_err)) +
   ylab('Probability of Passing DO Standard')
 ```
+
 2016 was a rough year at most sites.
 
 Note that for some year/ site combination, we never had a failure to meet DO 
@@ -363,6 +370,7 @@ exceeds  %>%
   geom_line() +
   geom_pointrange(aes(ymin = do_p-2 * do_err, ymax = do_p + 2 * do_err))
 ```
+
  That shows that 2016 was a tough year in June, July, August, and September,
  while June and July were tough in 2018.  This highlights the role of drought 
  in shaping conditions in Long Creek regarding dissolved oxygen.
@@ -374,7 +382,9 @@ without reaching convergence. Other models ran into other kinds of estimability
 problems for some key predictors, so we ended up with a relatively simple
 model:
 
-A model that omits the flow index term converges rapidly (~ 5 min, 7 iterations). 
+A model that omits the flow index term converges rapidly (~ 5 min, 7 
+iterations).
+
 ```{r do_gamm_2, cache = TRUE}
 if (! file.exists("models/do_gamm_two_2.rds")) {
   system.time(
@@ -396,6 +406,7 @@ summary(do_gamm_two_2$gam)
 ```
 
 `gam.check()` is only marginally useful for a binomial GAM, but we look anyway.
+
 ```{r}
 gam.check(do_gamm_two_2$gam)
 ```
@@ -480,6 +491,7 @@ ggplot(aes(as.numeric(year_f) + 2009, fprob)) +
 ## Exploratory Graphics
 These are estimated as empirical relative frequencies, with error estimated 
 as two times the standard error of the estimate. 
+
 ```{r ps_site_empirical_p}
 exceeds %>%
   group_by(Site, Year) %>%
@@ -496,6 +508,7 @@ exceeds %>%
 
 Note that for some year/ site combination, we never had a failure to meet 
 standards.  This limits models we can fit, as it did for DO.
+
 ```{r ps_month_empirical_p}
 exceeds  %>%
   group_by(month_f, Year) %>%
@@ -511,6 +524,7 @@ exceeds  %>%
 ## GAMM with Autocorrelated Error
 We follow the format of the DO model just developed. This model takes ~ 15 
 minutes to fit and converges in 6 iterations.
+
 ```{r ps_gamm_2, cache = TRUE}
 if (! file.exists("models/psat_gamm_two_2.rds")) {
   system.time(

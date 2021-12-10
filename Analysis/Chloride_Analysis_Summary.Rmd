@@ -59,7 +59,7 @@ Where:
    --  Weighted precipitation from the prior nine days  
    --  Stream flow in the middle of the watershed  
 * The core predictors enter the model as standard linear terms  
-* The error i an AR(1) correlated error.
+* The error is an AR(1) correlated error.
 
 We abuse the autocorrelation models slightly, since we use sequential
 autocorrelations (not time-based) and we don't fit separate autocorrelations for
@@ -68,7 +68,7 @@ are relatively rare in a dense data set, and missing values at the beginning of
 each season at each site prevent estimation near season and site transitions in
 the sequential data anyway.
 
-On the whole, this models is OK, but not great. It has heavy tailed, skewed 
+On the whole, this model is OK, but not great. It has heavy tailed, skewed 
 residuals. We should not trust the asymptotic p values. But since sample sizes 
 are large and results tend to have high statistical significance, p values are
 not much use anyway.
@@ -80,8 +80,6 @@ library(readr)
 
 library(emmeans) # Provides tools for calculating marginal means
 library(nlme)
-
-#library(zoo)     # here, for the `rollapply()` function
 
 library(mgcv)    # generalized additive models. Function gamm() allows
                  # autocorrelation.
@@ -414,7 +412,7 @@ climb again at the highest (very rare) flow levels.
 
 What these smoothers show is that sticking with linear terms for many of our
 covariates should work fairly well, except at the highest flow conditions.  We
-might also consider adding a "high rainfall"  term, rather than fitting a
+might also consider adding a "high rainfall"  term, rather than fitting
 a linear or smoothed predictor term for today's rain. The cost of such model
 simplification would be a drop in ability to accurately predict chloride
 levels under the highest flow, highest rainfall conditions.
@@ -429,8 +427,8 @@ gam.check(chl_gamm$gam)
 ```
 As with the linear model, we have a skewed, slightly heavy tailed distribution
 of residuals, with a couple of very large outliers. There is perhaps slight
-evidence for lack of complete independence between residuals and predictors.  T
-his model is adequate, but not great.  For careful work, we should probably use
+evidence for lack of complete independence between residuals and predictors.
+This model is adequate, but not great.  For careful work, we should probably use
 bootstrapped confidence intervals or something similar, but for our purposes, 
 that is probably overkill.
 

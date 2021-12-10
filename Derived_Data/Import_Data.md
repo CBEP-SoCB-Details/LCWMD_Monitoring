@@ -1,15 +1,15 @@
 LCWMD Data Import
 ================
 Curtis C. Bohlen, Casco Bay Estuary Partnership
-(Revised 7/21/2020)
+12/09/2021)
 
-  - [Import Libraries](#import-libraries)
-  - [Data Review](#data-review)
-  - [Load Final Data](#load-final-data)
-      - [First Site](#first-site)
-      - [Iterate over other sites](#iterate-over-other-sites)
-      - [Rename and Reorder](#rename-and-reorder)
-  - [Export the Data](#export-the-data)
+-   [Import Libraries](#import-libraries)
+-   [Data Review](#data-review)
+-   [Load Final Data](#load-final-data)
+    -   [First Site](#first-site)
+    -   [Iterate over other sites](#iterate-over-other-sites)
+    -   [Rename and Reorder](#rename-and-reorder)
+-   [Export the Data](#export-the-data)
 
 <img
   src="https://www.cascobayestuary.org/wp-content/uploads/2014/04/logo_sm.jpg"
@@ -22,12 +22,22 @@ library(readxl)
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+    ## Warning: package 'tidyverse' was built under R version 4.0.5
 
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.4     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.4.0     v forcats 0.5.0
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+
+    ## v ggplot2 3.3.5     v purrr   0.3.4
+    ## v tibble  3.1.6     v dplyr   1.0.7
+    ## v tidyr   1.1.4     v stringr 1.4.0
+    ## v readr   2.1.0     v forcats 0.5.1
+
+    ## Warning: package 'ggplot2' was built under R version 4.0.5
+
+    ## Warning: package 'tidyr' was built under R version 4.0.5
+
+    ## Warning: package 'dplyr' was built under R version 4.0.5
+
+    ## Warning: package 'forcats' was built under R version 4.0.5
 
     ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
@@ -107,9 +117,9 @@ summary(test.data)
 The structure of the source Excel files is a bit confusing. The
 consolidated data in the first tab of each data sheet are derived from
 lookup formulas that extract data from the source data, present in the
-“Sonde” and “Pressure” tabs. The consolidated data sheet FIRST tries
-to pull matching data from the Sonde data, and if that is not available,
-it then pulls data from the pressure transducer.
+“Sonde” and “Pressure” tabs. The consolidated data sheet FIRST tries to
+pull matching data from the Sonde data, and if that is not available, it
+then pulls data from the pressure transducer.
 
 That order of precedence is arguably incorrect for water depth, which is
 based on pressure, and thus should be more accurate if derived from the
@@ -123,7 +133,7 @@ percent saturation, each observation is split into two columns, the
 first being the observation, and the second being labeled as “ND” in the
 original data.
 
-Lets figure out what type of values those include.
+Let’s figure out what type of values those include.
 
 ``` r
 fn <- "S01 Merged Pressure and Sonde.xlsx"
@@ -141,7 +151,7 @@ test.data %>% summarise()
 
     ## # A tibble: 1 x 0
 
-So, there is No data in those columns in the first spreadsheet. We need
+So, there is o data in those columns in the first spreadsheet. We need
 to check all available data, so I’ll go through each spreadsheet in turn
 and see whether these columns contain any non-missing values.
 

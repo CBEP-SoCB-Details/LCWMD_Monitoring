@@ -52,7 +52,7 @@ The Long Creek Watershed, almost three and a half square miles in area,
 is dominated by commercial land use. The Maine Mall is one of the
 largest land owners in the watershed, and it is surrounded by a range of
 commercial businesses, from medical offices, to car washes. About a
-third of the watershed in impervious surfaces like roads, parking lots,
+third of the watershed is impervious surfaces like roads, parking lots,
 and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a
@@ -126,16 +126,27 @@ relatively rare, which limits ability to construct robust models.
 
 ``` r
 library(glmmTMB)  # Generalized Linear Mixed models.
+#> Warning: package 'glmmTMB' was built under R version 4.0.5
+#> Warning in checkMatrixPackageVersion(): Package version inconsistency detected.
+#> TMB was built with Matrix version 1.3.4
+#> Current Matrix version is 1.2.18
+#> Please re-install 'TMB' from source using install.packages('TMB', type = 'source') or ask CRAN for a binary version of 'TMB' matching CRAN's 'Matrix' package
 library(mgcv)     # For mixed effects GAMMs
+#> Warning: package 'mgcv' was built under R version 4.0.5
 #> Loading required package: nlme
-#> This is mgcv 1.8-33. For overview type 'help("mgcv-package")'.
+#> This is mgcv 1.8-38. For overview type 'help("mgcv-package")'.
 
 library(tidyverse)# Has to load after MASS, so `select()` is not masked
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-#> v ggplot2 3.3.3     v purrr   0.3.4
-#> v tibble  3.0.5     v dplyr   1.0.3
-#> v tidyr   1.1.2     v stringr 1.4.0
-#> v readr   1.4.0     v forcats 0.5.0
+#> Warning: package 'tidyverse' was built under R version 4.0.5
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+#> v ggplot2 3.3.5     v purrr   0.3.4
+#> v tibble  3.1.6     v dplyr   1.0.7
+#> v tidyr   1.1.4     v stringr 1.4.0
+#> v readr   2.1.0     v forcats 0.5.1
+#> Warning: package 'ggplot2' was built under R version 4.0.5
+#> Warning: package 'tidyr' was built under R version 4.0.5
+#> Warning: package 'dplyr' was built under R version 4.0.5
+#> Warning: package 'forcats' was built under R version 4.0.5
 #> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 #> x dplyr::collapse() masks nlme::collapse()
 #> x dplyr::filter()   masks stats::filter()
@@ -143,6 +154,7 @@ library(tidyverse)# Has to load after MASS, so `select()` is not masked
 library(readr)
 
 library(emmeans)  # Provides tools for calculating marginal means
+#> Warning: package 'emmeans' was built under R version 4.0.5
 
 library(CBEPgraphics)
 load_cbep_fonts()
@@ -181,18 +193,14 @@ fpath <- file.path(sibling, fn)
 
 Site_IC_Data <- read_csv(fpath) %>%
   filter(Site != "--") 
-#> 
+#> Rows: 7 Columns: 8
 #> -- Column specification --------------------------------------------------------
-#> cols(
-#>   Site = col_character(),
-#>   Subwatershed = col_character(),
-#>   Area_ac = col_double(),
-#>   IC_ac = col_double(),
-#>   CumArea_ac = col_double(),
-#>   CumIC_ac = col_double(),
-#>   PctIC = col_character(),
-#>   CumPctIC = col_character()
-#> )
+#> Delimiter: ","
+#> chr (4): Site, Subwatershed, PctIC, CumPctIC
+#> dbl (4): Area_ac, IC_ac, CumArea_ac, CumIC_ac
+#> 
+#> i Use `spec()` to retrieve the full column specification for this data.
+#> i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 # Now, create a factor that preserves the order of rows (roughly upstream to downstream). 
 Site_IC_Data <- Site_IC_Data %>%
@@ -227,7 +235,6 @@ flow estimates
 fn <- "Exceeds_Data.csv"
 exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
   mutate(IC=Site_IC_Data$CumPctIC[match(Site, Site_IC_Data$Site)]) %>%
-  select(-X1) %>%
   filter(Year < 2019) %>%
   mutate(Site = factor(Site, levels=levels(Site_IC_Data$Site)),
          year_f = factor(Year),
@@ -239,30 +246,18 @@ exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
          season = factor(season, levels = c('Winter', 'Spring', 
                                            'Summer', 'Fall'))) %>%
   mutate(lPrecip = log1p(Precip))
-#> Warning: Missing column names filled in: 'X1' [1]
-#> 
+#> New names:
+#> * `` -> ...1
+#> Rows: 11422 Columns: 19
 #> -- Column specification --------------------------------------------------------
-#> cols(
-#>   X1 = col_double(),
-#>   sdate = col_date(format = ""),
-#>   Site = col_character(),
-#>   Year = col_double(),
-#>   Month = col_double(),
-#>   Precip = col_double(),
-#>   PPrecip = col_double(),
-#>   MaxT = col_double(),
-#>   D_Median = col_double(),
-#>   ClassCDO = col_logical(),
-#>   ClassBDO = col_logical(),
-#>   ClassC_PctSat = col_logical(),
-#>   ClassB_PctSat = col_logical(),
-#>   ClassCBoth = col_logical(),
-#>   ClassBBoth = col_logical(),
-#>   ChlCCC = col_logical(),
-#>   ChlCMC = col_logical(),
-#>   MaxT_ex = col_logical(),
-#>   AvgT_ex = col_logical()
-#> )
+#> Delimiter: ","
+#> chr   (1): Site
+#> dbl   (7): ...1, Year, Month, Precip, PPrecip, MaxT, D_Median
+#> lgl  (10): ClassCDO, ClassBDO, ClassC_PctSat, ClassB_PctSat, ClassCBoth, Cla...
+#> date  (1): sdate
+#> 
+#> i Use `spec()` to retrieve the full column specification for this data.
+#> i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
 ## Data Corrections
@@ -696,7 +691,7 @@ emmeans(month_alt, ~ Site, cov.reduce = median,
 ## Models with Autocorrelated Error
 
 We fit a generalized linear mixed model, with autocorrelated error. Our
-primary interest, is in a GLM with an `covAR1()` correlation structure.
+primary interest is in a GLM with an `covAR1()` correlation structure.
 
 ### Fitting with glmmTMB
 
@@ -730,7 +725,7 @@ system.time(ccc_glmm<- glmmTMB(ChlCCC ~ Site + year_f + month_f +
               family = 'binomial',
               data = exceeds))
 #>    user  system elapsed 
-#>   52.64    0.44   53.13
+#>   26.78    0.28   27.09
 
 summary(ccc_glmm)
 #>  Family: binomial  ( logit )
@@ -834,12 +829,12 @@ predict(ccc_glmm, newdata = df, se.fit= TRUE)
 #> Warning in checkTerms(data.tmb1$terms, data.tmb0$terms): Predicting new random effect levels for terms: sdate_f + 0 | Site
 #> Disable this warning with 'allow.new.levels=TRUE'
 #> $fit
-#> mu_predict mu_predict 
-#>    9.05067   33.47870 
+#> eta_predict eta_predict 
+#>     9.05067    33.44304 
 #> 
 #> $se.fit
-#> mu_predict mu_predict 
-#>   32.67433  353.15598
+#> eta_predict eta_predict 
+#>    32.67433    26.21410
 ```
 
 A logit of 9.5, is getting close to where probabilities are over 99%,
@@ -863,7 +858,7 @@ system.time(ccc_glmm_3<- glmmTMB(ChlCCC ~ Site + month_f + year_f +
               family = 'binomial',
               data = exceeds))
 #>    user  system elapsed 
-#>   19.61    0.81   20.42
+#>   20.58    0.40   20.99
 
 summary(ccc_glmm_3)
 #>  Family: binomial  ( logit )
@@ -944,7 +939,7 @@ system.time(ccc_glmm_4<- glmmTMB(ChlCCC ~ Site + year_f +
               family = 'binomial',
               data = exceeds))
 #>    user  system elapsed 
-#>   29.23    0.56   29.80
+#>   15.74    0.49   16.21
 
 summary(ccc_glmm_4)
 #>  Family: binomial  ( logit )
@@ -1052,7 +1047,7 @@ system.time(ccc_gam<- gam(ChlCCC ~ Site + year_f + month_f +
                     niterPQL = 20,
                     data = tmp))
 #>    user  system elapsed 
-#>    0.35    0.00    0.34
+#>    0.33    0.00    0.35
 ```
 
 ``` r
@@ -1186,7 +1181,7 @@ system.time(ccc_gam_1<- gam(ChlCCC ~ Site + year_f + month_f +
                     niterPQL = 20,
                     data = tmp))
 #>    user  system elapsed 
-#>    2.36    0.00    2.36
+#>    2.31    0.00    2.33
 ```
 
 Or if we fit local stream depth instead of watershed flow.
@@ -1363,17 +1358,6 @@ if (! file.exists("models/ccc_gamm_1.rds")) {
 } else {
   ccc_gamm_1 <- readRDS("models/ccc_gamm_1.rds")
 }
-#> 
-#>  Maximum number of PQL iterations:  20
-#> iteration 1
-#> iteration 2
-#> iteration 3
-#> iteration 4
-#> iteration 5
-#> iteration 6
-#> iteration 7
-#>    user  system elapsed 
-#> 4858.04   11.68 4872.27
 ```
 
 A model that omits the Month term also takes some time to fit. Marginal
@@ -1396,16 +1380,6 @@ if (! file.exists("models/ccc_gamm_2.rds")) {
 } else {
   ccc_gamm_2 <- readRDS("models/ccc_gamm_2.rds")
 }
-#> 
-#>  Maximum number of PQL iterations:  20
-#> iteration 1
-#> iteration 2
-#> iteration 3
-#> iteration 4
-#> iteration 5
-#> iteration 6
-#>    user  system elapsed 
-#> 3903.11    9.58 3914.31
 ```
 
 In order to fit a model without the flow terms, we need to select one of
@@ -1413,7 +1387,7 @@ our other predictors to treat as a random factor. We see substantial
 differences in probability of failing these standards by Site, so we try
 some models that treat `year_f` as a random factor. You could fit a
 random factor two ways, using the `random = ....` function parameter, or
-by including a random effects smooth term via `s(..., type = 're')`
+by including a random effects smooth term via `s(..., type = 're')`.
 
 ``` r
 if (! file.exists("models/ccc_gamm_3.rds")) {
@@ -1428,15 +1402,6 @@ if (! file.exists("models/ccc_gamm_3.rds")) {
 } else {
   ccc_gamm_3 <- readRDS("models/ccc_gamm_3.rds")
 }
-#> 
-#>  Maximum number of PQL iterations:  20
-#> iteration 1
-#> iteration 2
-#> iteration 3
-#> iteration 4
-#> iteration 5
-#>    user  system elapsed 
-#>  108.64    1.24  109.89
 ```
 
 ``` r
@@ -1452,15 +1417,6 @@ if (! file.exists("models/ccc_gamm_4.rds")) {
 } else {
   ccc_gamm_4 <- readRDS("models/ccc_gamm_4.rds")
 }
-#> 
-#>  Maximum number of PQL iterations:  20
-#> iteration 1
-#> iteration 2
-#> iteration 3
-#> iteration 4
-#> iteration 5
-#>    user  system elapsed 
-#>  113.20    1.34  114.57
 ```
 
 ``` r
@@ -1476,15 +1432,6 @@ if (! file.exists("models/ccc_gamm_5.rds")) {
 } else {
   ccc_gamm_5 <- readRDS("models/ccc_gamm_5.rds")
 }
-#> 
-#>  Maximum number of PQL iterations:  20
-#> iteration 1
-#> iteration 2
-#> iteration 3
-#> iteration 4
-#> iteration 5
-#>    user  system elapsed 
-#>  111.69    1.11  112.84
 ```
 
 #### Examine Two Models
@@ -1661,7 +1608,7 @@ observed <- exceeds %>%
 observed
 #> # A tibble: 5 x 6
 #>   Site      n   prob      SE lower.CL upper.CL
-#> * <fct> <int>  <dbl>   <dbl>    <dbl>    <dbl>
+#>   <fct> <int>  <dbl>   <dbl>    <dbl>    <dbl>
 #> 1 S07    1880 0.503  0.0115    0.480    0.525 
 #> 2 S05    1410 0.721  0.0119    0.697    0.744 
 #> 3 S17     858 0.303  0.0157    0.272    0.334 
@@ -1834,7 +1781,7 @@ observed <- exceeds %>%
 observed
 #> # A tibble: 9 x 6
 #>   year_f     n  prob     SE lower.CL upper.CL
-#> * <fct>  <int> <dbl>  <dbl>    <dbl>    <dbl>
+#>   <fct>  <int> <dbl>  <dbl>    <dbl>    <dbl>
 #> 1 2010     581 0.425 0.0205    0.385    0.465
 #> 2 2011     730 0.270 0.0164    0.238    0.302
 #> 3 2012     602 0.262 0.0179    0.227    0.298
@@ -2035,7 +1982,7 @@ observed <- exceeds %>%
 observed
 #> # A tibble: 9 x 6
 #>   month_f     n  prob     SE lower.CL upper.CL
-#> * <fct>   <int> <dbl>  <dbl>    <dbl>    <dbl>
+#>   <fct>   <int> <dbl>  <dbl>    <dbl>    <dbl>
 #> 1 Mar       414 0.203 0.0198    0.164    0.242
 #> 2 Apr       929 0.335 0.0155    0.304    0.365
 #> 3 May       882 0.281 0.0151    0.252    0.311
@@ -2078,6 +2025,7 @@ z %>%
 ```
 
 <img src="Chloride_Frequencies_files/figure-gfm/unnamed-chunk-13-1.png" style="display: block; margin: auto;" />
+
 There is a lot of scatter here. The pattern is revealing. Our “flow
 adjusted” monthly values are lower in winter and higher in summer than
 the observed values, while the simpler model without a flow term fits

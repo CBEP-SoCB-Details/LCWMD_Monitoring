@@ -1,7 +1,7 @@
 ---
 title: "LCWMD Data Import"
 author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
-date: "(Revised 7/21/2020)"
+date: "12/09/2021)"
 output:
   github_document:
     toc: true
@@ -70,7 +70,7 @@ For some parameters, notably calculated chlorides, dissolved oxygen, and percent
 saturation, each observation is split into two columns, the first being the
 observation, and the second being labeled as "ND" in the original data.
 
-Lets figure out what type of values those include.
+Let's figure out what type of values those include.
 ```{r content_of_ND)}
 fn <- "S01 Merged Pressure and Sonde.xlsx"
 fpath <- file.path(sibling, subfldnm, subsubfldnm, fn)
@@ -84,7 +84,8 @@ test.data <- read_excel(fpath,
     mutate_all(~factor(.))
 test.data %>% summarise()
 ```
-So, there is No data in those columns in the first spreadsheet.  We need to
+
+So, there is o data in those columns in the first spreadsheet.  We need to
 check all available data, so I'll go through each spreadsheet in turn and see
 whether these columns contain any non-missing values.
 ```{r all_ND, cache = TRUE}
@@ -115,6 +116,7 @@ for (site in othersites) {
 rownames(results) <- c("S01", othersites)
 results
 ```
+
 So, there is no data in the the "ND" columns anywhere.  We can safely drop them.
 
 ```{r cleanup}
@@ -129,6 +131,7 @@ Preparing and printing error messages drastically slows this code.
 We load one data set first, to set up data format, before loading the other 
 files.  This is not strictly necessary, but it's convenient to have a first 
 dataframe to add others to using bind_rows.
+
 ```{r load_first}
 fn <- "S01 Merged Pressure and Sonde.xlsx"
 fpath <- file.path(sibling, subfldnm, subsubfldnm, fn)
@@ -175,6 +178,7 @@ It is worth noting that the data are NOT sorted by date and time, but apparently
 by Month, day, and time.  That is, at least some of the time, Data with the same
 calendar dates and times from different years are stored together.  I address
 that in this next block of code.
+
 ```{r rename_and_reorder}
 newnames <- c('DT', 'Chl', 'D', 'DO', 'PctSat', 'pH', 'Press', 'SpCond', 'T','Precip', 'Site')
 names(the_data) <- newnames

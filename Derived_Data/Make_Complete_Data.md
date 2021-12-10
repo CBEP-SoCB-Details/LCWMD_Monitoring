@@ -1,25 +1,25 @@
-Generate Complete Timeseries, with Weighted Sums of Precipitation
+Generate Complete Time Series, with Weighted Sums of Precipitation
 ================
 Curtis C. Bohlen, Casco Bay Estuary Partnership
 Revised 7/21/2020
 
-  - [Introduction](#introduction)
-  - [Import Libraries](#import-libraries)
-  - [Weighting Functions](#weighting-functions)
-      - [Testing Weighting Functions](#testing-weighting-functions)
-  - [Import Data](#import-data)
-      - [Data on Sites and Impervious
+-   [Introduction](#introduction)
+-   [Import Libraries](#import-libraries)
+-   [Weighting Functions](#weighting-functions)
+    -   [Testing Weighting Functions](#testing-weighting-functions)
+-   [Import Data](#import-data)
+    -   [Data on Sites and Impervious
         Cover](#data-on-sites-and-impervious-cover)
-      - [Main Data](#main-data)
-      - [Weather Data](#weather-data)
-          - [Add Logged and Weighted Precipitation
+    -   [Main Data](#main-data)
+    -   [Weather Data](#weather-data)
+        -   [Add Logged and Weighted Precipitation
             Values](#add-logged-and-weighted-precipitation-values)
-          - [Export Weather data with weighted
+        -   [Export Weather data with weighted
             sums](#export-weather-data-with-weighted-sums)
-      - [Combine Weather and observational
+    -   [Combine Weather and observational
         data](#combine-weather-and-observational-data)
-          - [Removing missing values](#removing-missing-values)
-  - [Output the Final Combined Data
+        -   [Removing missing values](#removing-missing-values)
+-   [Output the Final Combined Data
     Set](#output-the-final-combined-data-set)
 
 <img
@@ -30,20 +30,20 @@ Revised 7/21/2020
 
 Simple linear models of the LCWMD data assume that observations are
 independent, however, we know both on principal and from working with
-the data, that the different timeseries are auto- and cross-correlated
+the data, that the different time series are auto- and cross-correlated
 in complex ways.
 
 One challenge to analyzing these data in R is that the time series we
-are working with are INCOMPLETE, in the sense that we are missing data
+are working with are *incomplete*, in the sense that we are missing data
 from certain days or times. The time series methods in base R assume
 complete data in terms of how the data is laid out – even if many values
 are NA. The time series is assumed to be a sequence of observations
 equally spaced.
 
-One solution is to use the zoo package (or related xts) which extends
-time series methods in base R to indexed series, where the index can be
-any value that supports ordering. That has its own drawbacks in terms of
-generation of complex linear models. Our interest here is not
+One solution is to use the `zoo` package (or related `xts`) which
+extends time series methods in base R to indexed series, where the index
+can be any value that supports ordering. That has its own drawbacks in
+terms of generation of complex linear models. Our interest here is not
 principally in time series analysis, but in understanding long-term
 trends against the backdrop of data with strong seasonal and even
 diurnal patterns and autocorrelated errors.
@@ -60,12 +60,22 @@ to probe long-term trends.
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+    ## Warning: package 'tidyverse' was built under R version 4.0.5
 
-    ## v ggplot2 3.3.2     v purrr   0.3.4
-    ## v tibble  3.0.4     v dplyr   1.0.2
-    ## v tidyr   1.1.2     v stringr 1.4.0
-    ## v readr   1.4.0     v forcats 0.5.0
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+
+    ## v ggplot2 3.3.5     v purrr   0.3.4
+    ## v tibble  3.1.6     v dplyr   1.0.7
+    ## v tidyr   1.1.4     v stringr 1.4.0
+    ## v readr   2.1.0     v forcats 0.5.1
+
+    ## Warning: package 'ggplot2' was built under R version 4.0.5
+
+    ## Warning: package 'tidyr' was built under R version 4.0.5
+
+    ## Warning: package 'dplyr' was built under R version 4.0.5
+
+    ## Warning: package 'forcats' was built under R version 4.0.5
 
     ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
@@ -75,6 +85,8 @@ library(tidyverse)
 library(readr)
 library(lubridate) # simplifies management of date and time objects
 ```
+
+    ## Warning: package 'lubridate' was built under R version 4.0.5
 
     ## 
     ## Attaching package: 'lubridate'
@@ -87,6 +99,8 @@ library(lubridate) # simplifies management of date and time objects
 library(zoo)       # provides utilities for working with indexed time series
 ```
 
+    ## Warning: package 'zoo' was built under R version 4.0.5
+
     ## 
     ## Attaching package: 'zoo'
 
@@ -97,13 +111,14 @@ library(zoo)       # provides utilities for working with indexed time series
 # Weighting Functions
 
 Here we create two functions to calculate weighted sums of recent
-precipitation. These two functions are used with package zoo’s rollapply
-function to calculate a recent precipitation index. Each index looks at
-rainfall from a ten day period. The exponential weighting function
-emphasizes rainfall of the last day or two more strongly than a linear
-weighting does. The default rate parameters here were derived from
-analysis of cross correlation structure. They could be tuned as part of
-a model, but at the cost of substantially greater model complexity.
+precipitation. These two functions are used with package `zoo`’s
+`rollapply` function to calculate a recent precipitation index. Each
+index looks at rainfall from a ten day period. The exponential weighting
+function emphasizes rainfall of the last day or two more strongly than a
+linear weighting does. The default rate parameters here were derived
+from analysis of cross correlation structure. They could be tuned as
+part of a model, but at the cost of substantially greater model
+complexity.
 
 ``` r
 linweights <- function(x, rate=.1) {
@@ -125,28 +140,26 @@ expweights <- function(x, rate=(4/5)) {
 
 The checks confirm that the weighting functions are working as intended.
 
-  - The single sequence of ten values should produce a single value
-    under rollapply.
+-   The single sequence of ten values should produce a single value
+    under `rollapply()`.
 
-  - The FIRST value of 1 represents one inch of rainfall nine days ago.
-    The linear function should assign a weight of
-    \(1.9 \times 0.1 = 0.1\) to that value. The exponential decay
-    function should weight it at \((\frac{4}{5})^9 = 0.1342\).
+-   The FIRST value of 1 represents one inch of rainfall nine days ago.
+    The linear function should assign a weight of 1.9 × 0.1 = 0.1 to
+    that value. The exponential decay function should weight it at
+    $(\\frac{4}{5})^9 = 0.1342$.
 
-  - The LAST value of 1 represents rainfall today. Since this is a
+-   The LAST value of 1 represents rainfall today. Since this is a
     weighted sum of previous rainfall, it should receive a weight of
     zero under both weighting functions.
 
-  - The sequence of 20 values with a 1 in the middle calculates eleven
+-   The sequence of 20 values with a 1 in the middle calculates eleven
     weighted sums.
 
-  - The first set of ten sums includes rainfall only in the last day –
+-   The first set of ten sums includes rainfall only in the last day –
     which represents “today”, and thus receives a weight of zero.
 
-  - Each value after that shows how the weighting drops as rainfall
+-   Each value after that shows how the weighting drops as rainfall
     falls further into the past.
-
-<!-- end list -->
 
 ``` r
 check <- c(1,0,0,0,0,0,0,0,0,1)
@@ -228,11 +241,11 @@ knitr::kable(Site_IC_Data, col.names = c('Site',                         'Subwat
 ```
 
 | Site | Subwatershed      | Area (acres) | Impervious Area (acres) | Cummulative Area (Acres) | Cummulative Impervious Area (Acres) | Local Percent Imperviousness | Cummulative Percent Imperviousness |
-| :--- | :---------------- | -----------: | ----------------------: | -----------------------: | ----------------------------------: | ---------------------------: | ---------------------------------: |
+|:-----|:------------------|-------------:|------------------------:|-------------------------:|------------------------------------:|-----------------------------:|-----------------------------------:|
 | S07  | Blanchette Brook  |        434.1 |                    87.7 |                    434.1 |                                87.7 |                        20.20 |                              20.20 |
 | S06B | Upper Main Stem   |        623.3 |                    80.2 |                    623.3 |                                80.2 |                        12.87 |                              12.87 |
-| S05  | Middle Main Stem  |        278.6 |                    53.6 |                    901.9 |                               133.8 |                        19.24 |                              14.84 |
-| S17  | Lower Main Stem   |        105.0 |                    65.1 |                   1006.9 |                               198.9 |                        62.00 |                              19.75 |
+| S05  | Middle Main Stem  |        278.6 |                    53.6 |                   1336.0 |                               221.5 |                        19.24 |                              16.58 |
+| S17  | Lower Main Stem   |        105.0 |                    65.1 |                   1441.0 |                               286.6 |                        62.00 |                              19.89 |
 | S03  | North Branch Trib |        298.5 |                   123.0 |                    298.5 |                               123.0 |                        41.21 |                              41.21 |
 | S01  | South Branch Trib |        427.4 |                   239.7 |                    427.4 |                               239.7 |                        56.08 |                              56.08 |
 
@@ -258,16 +271,6 @@ daily_medians <- read_csv(fpath, progress=FALSE,
   arrange(Site, sdate) %>%
   filter(Year<2019)    
 ```
-
-    ## Warning: 11485 parsing failures.
-    ## row     col expected actual             file
-    ##   1 pH_Mean a number    NaN 'Daily_Data.csv'
-    ##   2 pH_Mean a number    NaN 'Daily_Data.csv'
-    ##   3 pH_Mean a number    NaN 'Daily_Data.csv'
-    ##   4 pH_Mean a number    NaN 'Daily_Data.csv'
-    ##   5 pH_Mean a number    NaN 'Daily_Data.csv'
-    ## ... ....... ........ ...... ................
-    ## See problems(...) for more details.
 
 ``` r
 ggplot(daily_medians, aes(sdate, Chl_Median, color=Site)) + 
@@ -419,16 +422,16 @@ variables by subsetting or pivot\_wider
 structure.
 
 With a little code, we can traverse each site and assemble a
-megadataset. We need to use match to make sure we line things up
+mega-dataset. We need to use match to make sure we line things up
 correctly within each site, honoring all missing values, etc. We only
 need the first nine data columns of daily\_medians because the weather
 data already contains date and weather data.
 
 By joining the “daily\_data” site by site onto data derived from the
-weather data ( which includes all dates in the target period), we
+weather data (which includes all dates in the target period), we
 implicitly create a “complete” data record for each site. (It would
-probably be possible to run each step more compactly using left\_join()
-instead of match()).
+probably be possible to run each step more compactly using `left_join()`
+instead of `match()`).
 
 ``` r
 l <- list()
@@ -488,7 +491,9 @@ valid data in the next few samples.
 
 ``` r
 final_data <- all_data %>%
-  mutate(hasdata = ! (is.na(Chl_Median) & is.na(DO_Median) & is.na(D_Median))) %>% 
+  mutate(hasdata = ! (is.na(Chl_Median) & 
+                        is.na(DO_Median) & 
+                        is.na(D_Median))) %>% 
   mutate(nexthasdata = ! (is.na(lead(Chl_Median)) & 
                             is.na(lead(DO_Median)) & 
                             is.na(lead(D_Median)))) %>%

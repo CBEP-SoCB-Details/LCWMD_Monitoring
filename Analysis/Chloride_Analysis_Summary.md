@@ -32,7 +32,7 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
     -   [Checking Estimated Marginal
         Means](#checking-estimated-marginal-means)
     -   [Visualizing Trends](#visualizing-trends)
--   [Model without the interactions.](#model-without-the-interactions.)
+-   [Model without the interactions.](#model-without-the-interactions)
     -   [ANOVA](#anova-1)
     -   [Summary](#summary-1)
     -   [Structure of the GAM](#structure-of-the-gam-1)
@@ -89,7 +89,7 @@ Where: \* covariates include three terms:
 – Weighted precipitation from the prior nine days  
 – Stream flow in the middle of the watershed  
 \* The core predictors enter the model as standard linear terms  
-\* The error i an AR(1) correlated error.
+\* The error is an AR(1) correlated error.
 
 We abuse the autocorrelation models slightly, since we use sequential
 autocorrelations (not time-based) and we don’t fit separate
@@ -99,7 +99,7 @@ set, and missing values at the beginning of each season at each site
 prevent estimation near season and site transitions in the sequential
 data anyway.
 
-On the whole, this models is OK, but not great. It has heavy tailed,
+On the whole, this model is OK, but not great. It has heavy tailed,
 skewed residuals. We should not trust the asymptotic p values. But since
 sample sizes are large and results tend to have high statistical
 significance, p values are not much use anyway.
@@ -108,17 +108,23 @@ significance, p values are not much use anyway.
 
 ``` r
 library(tidyverse)
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-#> v ggplot2 3.3.3     v purrr   0.3.4
-#> v tibble  3.0.5     v dplyr   1.0.3
-#> v tidyr   1.1.2     v stringr 1.4.0
-#> v readr   1.4.0     v forcats 0.5.0
+#> Warning: package 'tidyverse' was built under R version 4.0.5
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+#> v ggplot2 3.3.5     v purrr   0.3.4
+#> v tibble  3.1.6     v dplyr   1.0.7
+#> v tidyr   1.1.4     v stringr 1.4.0
+#> v readr   2.1.0     v forcats 0.5.1
+#> Warning: package 'ggplot2' was built under R version 4.0.5
+#> Warning: package 'tidyr' was built under R version 4.0.5
+#> Warning: package 'dplyr' was built under R version 4.0.5
+#> Warning: package 'forcats' was built under R version 4.0.5
 #> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 library(readr)
 
 library(emmeans) # Provides tools for calculating marginal means
+#> Warning: package 'emmeans' was built under R version 4.0.5
 library(nlme)
 #> 
 #> Attaching package: 'nlme'
@@ -126,10 +132,9 @@ library(nlme)
 #> 
 #>     collapse
 
-#library(zoo)     # here, for the `rollapply()` function
-
 library(mgcv)    # generalized additive models. Function gamm() allows
-#> This is mgcv 1.8-33. For overview type 'help("mgcv-package")'.
+#> Warning: package 'mgcv' was built under R version 4.0.5
+#> This is mgcv 1.8-38. For overview type 'help("mgcv-package")'.
                  # autocorrelation.
 
 library(CBEPgraphics)
@@ -194,18 +199,14 @@ fpath <- file.path(sibling, fn)
 
 Site_IC_Data <- read_csv(fpath) %>%
   filter(Site != "--") 
-#> 
+#> Rows: 7 Columns: 8
 #> -- Column specification --------------------------------------------------------
-#> cols(
-#>   Site = col_character(),
-#>   Subwatershed = col_character(),
-#>   Area_ac = col_double(),
-#>   IC_ac = col_double(),
-#>   CumArea_ac = col_double(),
-#>   CumIC_ac = col_double(),
-#>   PctIC = col_character(),
-#>   CumPctIC = col_character()
-#> )
+#> Delimiter: ","
+#> chr (4): Site, Subwatershed, PctIC, CumPctIC
+#> dbl (4): Area_ac, IC_ac, CumArea_ac, CumIC_ac
+#> 
+#> i Use `spec()` to retrieve the full column specification for this data.
+#> i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 # Now, create a factor that preserves the order of rows (roughly upstream to downstream). 
 Site_IC_Data <- Site_IC_Data %>%
@@ -261,8 +262,9 @@ full_data <- read_csv(fpath,
 # therefore dates are not unique.  `match()` correctly assigns weather
 # data by date.
 mutate(PPrecip = weather_data$pPRCP[match(sdate, weather_data$sdate)])
-#> Warning: Missing column names filled in: 'X1' [1]
-#> Warning: The following named parsers don't match the column names: FlowIndex
+#> New names:
+#> * `` -> ...1
+#> Warning: The following named parsers don't match the column names: X1, FlowIndex
 ```
 
 ### Cleanup
@@ -607,7 +609,7 @@ levels.
 What these smoothers show is that sticking with linear terms for many of
 our covariates should work fairly well, except at the highest flow
 conditions. We might also consider adding a “high rainfall” term, rather
-than fitting a a linear or smoothed predictor term for today’s rain. The
+than fitting a linear or smoothed predictor term for today’s rain. The
 cost of such model simplification would be a drop in ability to
 accurately predict chloride levels under the highest flow, highest
 rainfall conditions.
@@ -633,8 +635,8 @@ gam.check(chl_gamm$gam)
     #> indicate that k is too low, especially if edf is close to k'.
     #> 
     #>                k'  edf k-index p-value    
-    #> s(lPrecip)   9.00 6.60    0.97   0.015 *  
-    #> s(wlPrecip)  9.00 3.91    0.90  <2e-16 ***
+    #> s(lPrecip)   9.00 6.60    1.01    0.73    
+    #> s(wlPrecip)  9.00 3.91    0.91  <2e-16 ***
     #> s(FlowIndex) 9.00 8.45    0.88  <2e-16 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -642,7 +644,7 @@ gam.check(chl_gamm$gam)
 As with the linear model, we have a skewed, slightly heavy tailed
 distribution of residuals, with a couple of very large outliers. There
 is perhaps slight evidence for lack of complete independence between
-residuals and predictors. T his model is adequate, but not great. For
+residuals and predictors. This model is adequate, but not great. For
 careful work, we should probably use bootstrapped confidence intervals
 or something similar, but for our purposes, that is probably overkill.
 
@@ -937,9 +939,9 @@ gam.check(revised_gamm$gam)
     #> indicate that k is too low, especially if edf is close to k'.
     #> 
     #>                k'  edf k-index p-value    
-    #> s(lPrecip)   9.00 6.61    0.99    0.32    
-    #> s(wlPrecip)  9.00 3.92    0.90  <2e-16 ***
-    #> s(FlowIndex) 9.00 8.46    0.88  <2e-16 ***
+    #> s(lPrecip)   9.00 6.61    1.01    0.74    
+    #> s(wlPrecip)  9.00 3.92    0.89  <2e-16 ***
+    #> s(FlowIndex) 9.00 8.46    0.85  <2e-16 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1011,8 +1013,8 @@ gam.check(years_gamm$gam)
     #> indicate that k is too low, especially if edf is close to k'.
     #> 
     #>                k'  edf k-index p-value    
-    #> s(lPrecip)   9.00 6.61    1.01    0.86    
-    #> s(wlPrecip)  9.00 3.87    0.95  <2e-16 ***
-    #> s(FlowIndex) 9.00 8.49    0.89  <2e-16 ***
+    #> s(lPrecip)   9.00 6.61    0.97    0.02 *  
+    #> s(wlPrecip)  9.00 3.87    0.96  <2e-16 ***
+    #> s(FlowIndex) 9.00 8.49    0.90  <2e-16 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

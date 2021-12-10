@@ -1,5 +1,5 @@
 ---
-title: "Generate Complete Timeseries, with Weighted Sums of Precipitation"
+title: "Generate Complete Time Series, with Weighted Sums of Precipitation"
 author: "Curtis C. Bohlen, Casco Bay Estuary Partnership"
 date: "Revised 7/21/2020"
 output:
@@ -14,13 +14,28 @@ output:
   style="position:absolute;top:10px;right:50px;" />
 
 # Introduction
-Simple linear models of the LCWMD data assume that observations are independent, however, we know both on principal and from working with the data, that  the different timeseries are auto- and cross-correlated in complex ways.
+Simple linear models of the LCWMD data assume that observations are independent,
+however, we know both on principal and from working with the data, that  the
+different time series are auto- and cross-correlated in complex ways.
 
-One challenge to analyzing these data in R is that the time series we are working with are INCOMPLETE, in the sense that we are missing data from certain days or times. The time series methods in base R assume complete data in terms of how the data is laid out -- even if many values are NA.  The time series is assumed to be a sequence of observations equally spaced.
+One challenge to analyzing these data in R is that the time series we are
+working with are *incomplete*, in the sense that we are missing data from
+certain days or times. The time series methods in base R assume complete data in
+terms of how the data is laid out -- even if many values are NA.  The time
+series is assumed to be a sequence of observations equally spaced.
 
-One solution is to use the zoo package (or related xts) which extends time series methods in base R to indexed series, where the index can be any value that supports ordering.  That has its own drawbacks in terms of generation of complex linear models. Our interest here is not principally in time series analysis, but in understanding long-term trends against the backdrop of data with strong seasonal and even diurnal patterns and autocorrelated errors.
+One solution is to use the `zoo` package (or related `xts`) which extends time
+series methods in base R to indexed series, where the index can be any value
+that supports ordering.  That has its own drawbacks in terms of generation of
+complex linear models. Our interest here is not principally in time series
+analysis, but in understanding long-term trends against the backdrop of data
+with strong seasonal and even diurnal patterns and autocorrelated errors.
 
-Here we calculate data that contains  variables that capture some of the autocorrelation and crosscorrelation structure of these data through lag terms and weighted sums of recent observations.  These  allow us to use generalized least squares (GLS) and generalized additive models (GAMMS) to probe long-term trends.
+Here we calculate data that contains  variables that capture some of the
+autocorrelation and crosscorrelation structure of these data through lag terms
+and weighted sums of recent observations.  These  allow us to use generalized
+least squares (GLS) and generalized additive models (GAMMS) to probe long-term
+trends.
 
 # Import Libraries  
 ```{r load_library}
@@ -31,8 +46,14 @@ library(zoo)       # provides utilities for working with indexed time series
 ```
 
 # Weighting Functions
-Here we create two functions to calculate weighted sums of recent precipitation.  These two functions are used with package zoo's rollapply function to calculate a recent precipitation index.  Each index looks at rainfall from a ten day period.  The exponential weighting function emphasizes rainfall of the last day or two more strongly than a linear weighting does. The default rate parameters here were  derived from analysis of cross correlation structure. They could be tuned as part of a model, but at the  cost of substantially greater model complexity.
-
+Here we create two functions to calculate weighted sums of recent precipitation.
+These two functions are used with package `zoo`'s `rollapply` function to
+calculate a recent precipitation index.  Each index looks at rainfall from a ten
+day period.  The exponential weighting function emphasizes rainfall of the last
+day or two more strongly than a linear weighting does. The default rate
+parameters here were  derived from analysis of cross correlation structure. They
+could be tuned as part of a model, but at the  cost of substantially greater
+model complexity.
 
 ```{r def_weighted_sum_fxns}
 linweights <- function(x, rate=.1) {
@@ -50,24 +71,29 @@ expweights <- function(x, rate=(4/5)) {
 }
 ```
 
-
 ## Testing Weighting Functions
 The checks confirm that the weighting functions are working as intended. 
 
-*  The  single sequence of ten values should produce a single value under rollapply. 
+*  The  single sequence of ten values should produce a single value under 
+   `rollapply()`. 
 
--    The FIRST value of 1 represents one inch of rainfall nine days ago.  The linear function
-     should assign a weight of $1.9 \times 0.1 = 0.1$  to that value.  The exponential decay function
-     should weight it at $(\frac{4}{5})^9 = 0.1342$. 
+-    The FIRST value of 1 represents one inch of rainfall nine days ago.  The 
+     linear function should assign a weight of $1.9 \times 0.1 = 0.1$  to that 
+     value.  The exponential decay function should weight it at 
+     $(\frac{4}{5})^9 = 0.1342$. 
 
--    The LAST value of 1 represents rainfall today.  Since this is a weighted sum of previous rainfall,
-     it should receive a weight of zero under both weighting functions. 
+-    The LAST value of 1 represents rainfall today.  Since this is a weighted
+     sum of previous rainfall, it should receive a weight of zero under both
+     weighting functions.
 
-*  The sequence of 20 values with a 1 in the middle calculates eleven weighted sums.
--    The first set of ten sums includes rainfall only in the last day -- which represents
-     "today", and thus receives a weight of zero. 
+*  The sequence of 20 values with a 1 in the middle calculates eleven weighted 
+   sums.
+   
+-    The first set of ten sums includes rainfall only in the last day -- which 
+     represents "today", and thus receives a weight of zero. 
      
--    Each value after that shows how the weighting drops as rainfall falls further into the past. 
+-    Each value after that shows how the weighting drops as rainfall falls 
+     further into the past. 
 
 ```{r check_weights}
 check <- c(1,0,0,0,0,0,0,0,0,1)
@@ -84,8 +110,12 @@ rm(w1, w2, check)
 
 # Import Data
 ## Data on Sites and Impervious Cover
-These data were derived from Table 2 from a GZA report to the Long Creek Watershed Management District, titled "Re: Long Creek Watershed Data Analysis; Task 2: Preparation of Explanatory and Other Variables."  The Memo is dated November 13, 2019
-File No. 09.0025977.02.  We calculated cumulative upstream acres, impervious acres, and imperviousness based on data in that table.
+These data were derived from Table 2 from a GZA report to the Long Creek
+Watershed Management District, titled "Re: Long Creek Watershed Data Analysis;
+Task 2: Preparation of Explanatory and Other Variables."  The Memo is dated
+November 13, 2019 File No. 09.0025977.02.  We calculated cumulative upstream
+acres, impervious acres, and imperviousness based on data in that table.
+
 ```{r load_IC_data }
 # Read in data and drop the East Branch, where we have no data
 Site_IC_Data <- read_csv("Site_IC_Data.csv", col_types=cols(
@@ -226,6 +256,7 @@ plot(Precip~sdate, data = tmp)
 points(wPrecip~sdate, data = tmp, col='Red')
 rm(tmp)
 ```
+
 Note that after each major rain event, the weighted sum drops, which is what we 
 needed.
 
@@ -242,6 +273,7 @@ independently at each site, we need to ensure we generate
 Nevertheless, we may want to assemble a combined data set for modeling purposes.
 
 The sites we are interested in include:
+
 ```{r sites_list, echo=FALSE}
 cat(as.character((Site_IC_Data$Site)))
 ```
@@ -252,15 +284,15 @@ where appropriate.  We need to be able to do two things with this data:
     subsetting or pivot_wider  
 (2) Analyze the full dataset in GAMs or via GLS, with an AR1 error structure. 
 
-With a little code, we can traverse each site and assemble a megadataset.  We
+With a little code, we can traverse each site and assemble a mega-dataset.  We
 need to use match to make sure we line things up correctly within each site,
 honoring all missing values, etc.  We only need the first nine data columns of
 daily_medians because the weather data already contains date and weather data.
 
 By joining the "daily_data" site by site onto data derived from the weather data
-( which includes all dates in the target period), we implicitly create a
+(which includes all dates in the target period), we implicitly create a
 "complete" data record for each site.  (It would probably be possible to run
-each step more compactly using left_join() instead of match()).
+each step more compactly using `left_join()` instead of `match()`).
 
 ```{r assemble_all_sites}
 l <- list()
@@ -287,7 +319,6 @@ all_data <- bind_rows(l, .id="Site")
 rm(l, d_data, d_part)
 ```
 
-
 ### Removing missing values
 That produces the "full" regular time series.  But it wastes a LOT of memory
 because it contains so many NAs. Since each site was assembled separately, based
@@ -307,7 +338,6 @@ real data in sequence in the data.
 (Note:  This assumes we don't deed a more complicated error structure, like an
 AR2 or AR3.) 
 
-
 The basic idea is to create a variable that is lagged appropriately, so we know
 whether the NEXT row contains data, Then I can retain rows that EITHER contain
 data, or for which the NEXT row contains data.
@@ -316,9 +346,12 @@ The dplyr::lead() function can "look forward" one row to see if we have a
 missing data or not.  So we can combine several to figure out how soon we will
 have data.  What we want here is a test to see if we have ANY valid data in the
 next few samples.
+
 ```{r remove_useless_NAs}
 final_data <- all_data %>%
-  mutate(hasdata = ! (is.na(Chl_Median) & is.na(DO_Median) & is.na(D_Median))) %>% 
+  mutate(hasdata = ! (is.na(Chl_Median) & 
+                        is.na(DO_Median) & 
+                        is.na(D_Median))) %>% 
   mutate(nexthasdata = ! (is.na(lead(Chl_Median)) & 
                             is.na(lead(DO_Median)) & 
                             is.na(lead(D_Median)))) %>%
@@ -331,11 +364,9 @@ final_data <- all_data %>%
   mutate(test0 = hasdata | nexthasdata | secondhasdata | thirdhasdata) %>%
   filter(test0) %>%
   select(-hasdata, -nexthasdata, -secondhasdata, -thirdhasdata, -test0)
-
 ```
 
 # Output the Final Combined Data Set
 ```{r save_full_data}
 write.csv(final_data, 'Full_Data.csv')
 ```
-

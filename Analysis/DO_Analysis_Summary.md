@@ -20,15 +20,15 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
     -   [Load Main Data](#load-main-data)
         -   [Cleanup](#cleanup)
     -   [Data Corrections](#data-corrections)
-        -   [Anomolous Depth Values](#anomolous-depth-values)
+        -   [Anomalous Depth Values](#anomalous-depth-values)
         -   [Single S06B Chloride Observation from
             2017](#single-s06b-chloride-observation-from-2017)
-        -   [Anomolous Dissolved Oxygen and Chloride
-            Values](#anomolous-dissolved-oxygen-and-chloride-values)
+        -   [Anomalous Dissolved Oxygen and Chloride
+            Values](#anomalous-dissolved-oxygen-and-chloride-values)
     -   [Remove Partial Data from Winter
         Months](#remove-partial-data-from-winter-months)
     -   [Add Stream Flow Index](#add-stream-flow-index)
-    -   [Select Final Data Set](#select-final-data-set)
+    -   [Select Final Dataset](#select-final-dataset)
 -   [Crosstabs](#crosstabs)
 -   [Exploratory Graphics](#exploratory-graphics)
     -   [We Explore a Larger Model](#we-explore-a-larger-model)
@@ -57,7 +57,7 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
     -   [By Year](#by-year-2)
 -   [Hierarchical Analysis of Trends](#hierarchical-analysis-of-trends)
     -   [Model 1 : Site by Year
-        interaction](#model-1-site-by-year-interaction)
+        interaction](#model-1--site-by-year-interaction)
         -   [ANOVA](#anova-2)
         -   [Summary](#summary-2)
         -   [Estimated Daily
@@ -99,27 +99,27 @@ site](restorelongcreek.org).
 
 Over the past decade, LCWMD has contracted with several consulting firms
 to provide water quality monitoring services along Long Creek. This has
-produced one of the most extensive and best documented data set from the
+produced one of the most extensive and best documented dataset from the
 Northeastern US looking at water quality conditions in an urban stream.
 
 GZA Geoenvironmental Incorporated (GZA) has been the primary monitoring
 contractor for LCWMD in recent years, and in 2019, they conducted a
 thorough review of LCWMD data. These analyses are based on their summary
-data sets, and recapitulate and extend their analyses.
+datasets, and recapitulate and extend their analyses.
 
 ## Are Water Quality Criteria Met?
 
 The primary question we ask in this Notebook, is whether water quality
 criteria pertaining to levels of dissolved oxygen are met. In
-poarticular, we explore various ways of modelling those probabilities,
-and settle on modelling only summertime probabilities as the most
-informative for State of Casco Bay readers.
+particular, we explore various ways of modeling those probabilities, and
+settle on modeling only summertime probabilities as the most informative
+for State of Casco Bay readers.
 
 We ask whether the probability of failing to meet criteria each day is
 changing. Secondarily, we examine differences among sites in the
 probability of failing criteria.
 
-In this data set a “TRUE” value consistently implies that water quality
+In this dataset a “TRUE” value consistently implies that water quality
 criteria were met or exceeded, whether that is achieved by a value
 higher than or lower than some numeric criteria. “TRUE” implies good
 conditions. “FALSE” implies bad conditions.
@@ -132,7 +132,7 @@ Maine’s Class B water quality standards call for dissolved oxygen above
 7 mg/l, with percent saturation above 75%. The Class C Standards, which
 apply to almost all of Long Creek, call for dissolved oxygen above 5
 mg/l, with percent saturation above 60%. In addition, for class C
-conditions, the thirty day average dissolved oxygen muststay above 6.5
+conditions, the thirty day average dissolved oxygen must stay above 6.5
 mg/l.
 
 ### Chloride
@@ -186,17 +186,23 @@ metrics.
 
 ``` r
 library(tidyverse)
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-#> v ggplot2 3.3.3     v purrr   0.3.4
-#> v tibble  3.0.5     v dplyr   1.0.3
-#> v tidyr   1.1.2     v stringr 1.4.0
-#> v readr   1.4.0     v forcats 0.5.0
+#> Warning: package 'tidyverse' was built under R version 4.0.5
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+#> v ggplot2 3.3.5     v purrr   0.3.4
+#> v tibble  3.1.6     v dplyr   1.0.7
+#> v tidyr   1.1.4     v stringr 1.4.0
+#> v readr   2.1.0     v forcats 0.5.1
+#> Warning: package 'ggplot2' was built under R version 4.0.5
+#> Warning: package 'tidyr' was built under R version 4.0.5
+#> Warning: package 'dplyr' was built under R version 4.0.5
+#> Warning: package 'forcats' was built under R version 4.0.5
 #> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
 library(readr)
 
 library(emmeans) # Provides tools for calculating marginal means
+#> Warning: package 'emmeans' was built under R version 4.0.5
 library(nlme)
 #> 
 #> Attaching package: 'nlme'
@@ -207,7 +213,8 @@ library(nlme)
 #library(zoo)     # here, for the `rollapply()` function
 
 library(mgcv)    # generalized additive models. Function gamm() allows
-#> This is mgcv 1.8-33. For overview type 'help("mgcv-package")'.
+#> Warning: package 'mgcv' was built under R version 4.0.5
+#> This is mgcv 1.8-38. For overview type 'help("mgcv-package")'.
                  # autocorrelation.
 
 library(CBEPgraphics)
@@ -272,18 +279,14 @@ fpath <- file.path(sibling, fn)
 
 Site_IC_Data <- read_csv(fpath) %>%
   filter(Site != "--") 
-#> 
+#> Rows: 7 Columns: 8
 #> -- Column specification --------------------------------------------------------
-#> cols(
-#>   Site = col_character(),
-#>   Subwatershed = col_character(),
-#>   Area_ac = col_double(),
-#>   IC_ac = col_double(),
-#>   CumArea_ac = col_double(),
-#>   CumIC_ac = col_double(),
-#>   PctIC = col_character(),
-#>   CumPctIC = col_character()
-#> )
+#> Delimiter: ","
+#> chr (4): Site, Subwatershed, PctIC, CumPctIC
+#> dbl (4): Area_ac, IC_ac, CumArea_ac, CumIC_ac
+#> 
+#> i Use `spec()` to retrieve the full column specification for this data.
+#> i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 # Now, create a factor that preserves the order of rows (roughly upstream to downstream). 
 Site_IC_Data <- Site_IC_Data %>%
@@ -338,7 +341,9 @@ full_data <- read_csv(fpath,
 # therefore dates are not unique.  `match()` correctly assigns weather
 # data by date.
   mutate(PPrecip = weather_data$pPRCP[match(sdate, weather_data$sdate)])
-#> Warning: Missing column names filled in: 'X1' [1]
+#> New names:
+#> * `` -> ...1
+#> Warning: The following named parsers don't match the column names: X1
 ```
 
 ### Cleanup
@@ -350,7 +355,7 @@ rm(fn, fpath, parent, sibling, sibfldnm)
 
 ## Data Corrections
 
-### Anomolous Depth Values
+### Anomalous Depth Values
 
 Several depth observations in the record appear highly unlikely. In
 particular, several observations show daily median water depths over 15
@@ -403,7 +408,7 @@ full_data <- full_data %>%
                               NA_real_, Chl_Median))
 ```
 
-### Anomolous Dissolved Oxygen and Chloride Values
+### Anomalous Dissolved Oxygen and Chloride Values
 
 #### Site S03, end of 2016
 
@@ -445,8 +450,8 @@ sonde-related data.
         chlorides, and follows a brief rise and rapid fall in water
         temperature.  
 -   Recovery in DO several days later (1/28/2016) corresponds to a drop
-    in chlorides, and a BREIF increase on water depth, but there is no
-    related change in temperature.  
+    in chlorides, and a **brief** increase on water depth, but there is
+    no related change in temperature.  
 -   Ongoing brief spikes in DO appear to correspond to drops in
     chlorides or conductivity, and very brief small blips in water
     depth.  
@@ -569,7 +574,7 @@ full_data <- full_data %>%
 Note that because the flow record at S05 has some gaps, any model using
 this predictor is likely to have a smaller sample size.
 
-## Select Final Data Set
+## Select Final Dataset
 
 ``` r
 full_data <- full_data %>%
@@ -712,6 +717,7 @@ ggplot(full_data, aes(x = DO_Median)) + geom_histogram(aes(fill = Site))
 ```
 
 <img src="DO_Analysis_Summary_files/figure-gfm/unnamed-chunk-17-1.png" style="display: block; margin: auto;" />
+
 So, while not exactly normally distributed, it’s not wildly skewed
 either.
 
@@ -727,6 +733,7 @@ ggplot(full_data, aes(y = DO_Median, x = T_Median)) +
 ```
 
 <img src="DO_Analysis_Summary_files/figure-gfm/unnamed-chunk-18-1.png" style="display: block; margin: auto;" />
+
 S01 and S05 have high temperature low or no DO events. S03 has some mid
 temperature low DO events, and SO7 and S05 have low temperature low DO
 events. Those low DO events tend to occur in temporal clusters, all part
@@ -776,7 +783,7 @@ if (! file.exists("models/do_gls.rds")) {
   do_gls <- readRDS("models/do_gls.rds")
 }
 #>    user  system elapsed 
-#> 1008.89    3.33 1012.75
+#> 1056.95    3.52 1060.93
 anova(do_gls)
 #> Denom. DF: 8318 
 #>             numDF  F-value p-value
@@ -910,7 +917,7 @@ Results are interesting. As suspected, dissolved oxygen on successive
 days are highly autocorrelated – over 95%. Once you take into account
 air temperature and time of year, neither site nor year ends up as
 statistically significant. Note that this conflicts with results of the
-analysis of exceedences, where both site and year mattered.
+analysis of exceedances, where both site and year mattered.
 
 ## We Explore a Larger Model
 
@@ -952,7 +959,7 @@ predictors, we see a difference between sites. Air temperature is a lot
 less important after we fit a stream temperature term. Stream
 temperature ends up as by far the most important predictor. One
 challenge we have seen in too many other analyses is that with the large
-data sets we have, lots of small signals are statistically significant.
+datasets we have, lots of small signals are statistically significant.
 
 # GAMM Analysis
 
@@ -978,8 +985,6 @@ by `FlowIndex` for each site.
 This model takes a long time to run minutes to run (more than 5, less
 than 15)
 
-, form = \~ as.numeric(sdate) \| Site
-
 ``` r
 system.time(
   do_gam <- gam(DO_Median ~ Site + 
@@ -995,7 +1000,7 @@ system.time(
                 data = full_data)
 )
 #>    user  system elapsed 
-#>    0.46    0.02    0.48
+#>    0.48    0.00    0.50
 
 anova(do_gam)
 #> 
@@ -1123,7 +1128,7 @@ plot(do_gam)
 The interesting feature here is that effects of both air temperature and
 water temperature are nearly linear, with water temperature much larger.
 
-Lets try shifting the water temp to a linear term, and dropping the air
+Let’s try shifting the water temp to a linear term, and dropping the air
 temp term. We have to be back again in the world where confounded
 factors will stop the analysis. We have to drop the Site by Year term.
 
@@ -1150,8 +1155,6 @@ if (! file.exists("models/do_gamm.rds")) {
 } else {
   do_gamm <- readRDS("models/do_gamm.rds")
 }
-#>    user  system elapsed 
-#>  600.11    2.64  603.00
 ```
 
 ### ANOVA
@@ -1264,7 +1267,7 @@ gam.check(do_gamm$gam)
     #> indicate that k is too low, especially if edf is close to k'.
     #> 
     #>                k'  edf k-index p-value    
-    #> s(FlowIndex) 9.00 7.38    0.87  <2e-16 ***
+    #> s(FlowIndex) 9.00 7.38    0.89  <2e-16 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1406,6 +1409,7 @@ plot(by_year) +
 ```
 
 <img src="DO_Analysis_Summary_files/figure-gfm/unnamed-chunk-35-1.png" style="display: block; margin: auto;" />
+
 2010 was a partial year, so despite (or perhaps because of) adjusting
 for months, the 2010 estimate may be misleading. Since then, basically,
 2016 is way worse than the other years.
@@ -1433,9 +1437,6 @@ if (! file.exists("models/do_gamm_2.rds")) {
 } else {
   do_gamm_2 <- readRDS("models/do_gamm_2.rds")
 }
-#> Warning in smooth.construct.tp.smooth.spec(object, dk$data, dk$knots): basis dimension, k, increased to minimum possible
-#>    user  system elapsed 
-#> 2336.19    5.27 2342.84
 ```
 
 ### ANOVA
@@ -1531,7 +1532,7 @@ gam.check(do_gamm_2$gam)
     #> indicate that k is too low, especially if edf is close to k'.
     #> 
     #>               k'  edf k-index p-value    
-    #> s(T_Median) 2.00 1.99    0.87  <2e-16 ***
+    #> s(T_Median) 2.00 1.99    0.85  <2e-16 ***
     #> ---
     #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1729,8 +1730,8 @@ temperature and flow.
 
 We should be careful, as data is only available for selected years for
 three of our sites, including SO5, S06B and S17. This means we may be
-overfitting the trends fror some of those sites based on a limited
-number of years.
+overfitting the trends for some of those sites based on a limited number
+of years.
 
 We thought this would be a slow model to fit, so we save a version, but
 the model converges relatively rapidly.
@@ -1893,7 +1894,7 @@ full_data %>%
             do_median = median(DO_Median))
 #> # A tibble: 4 x 4
 #>    Year     n do_mean do_median
-#> * <int> <int>   <dbl>     <dbl>
+#>   <int> <int>   <dbl>     <dbl>
 #> 1  2010    66    8.95      7.82
 #> 2  2011    72    8.42      8.14
 #> 3  2013   122    9.64      9.28

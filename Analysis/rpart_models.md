@@ -1,4 +1,4 @@
-Classificatin Tree Models of ‘Diurnal Exceedences’ on Long Creek
+Classification Tree Models of ‘Diurnal Exceedances’ on Long Creek
 ================
 Curtis C. Bohlen, Casco Bay Estuary Partnership.
 01/12/2021
@@ -17,7 +17,7 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
         Cover](#data-on-sites-and-impervious-cover)
     -   [Main Data](#main-data)
     -   [Data Corrections](#data-corrections)
-        -   [Anomolous Depth Values](#anomolous-depth-values)
+        -   [Anomalous Depth Values](#anomalous-depth-values)
         -   [Single S06B Chloride Observation from
             2017](#single-s06b-chloride-observation-from-2017)
     -   [Add Stream Flow Index](#add-stream-flow-index)
@@ -25,7 +25,7 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
 -   [How to Interpret Results?](#how-to-interpret-results)
     -   [Confirm Meaning of “TRUE”](#confirm-meaning-of-true)
     -   [Demo: How `rpart()` Handles / Displays TRUE/FALSE
-        values?](#demo-how-rpart-handles-displays-truefalse-values)
+        values?](#demo-how-rpart-handles--displays-truefalse-values)
 -   [Days that Pass DO Standards](#days-that-pass-do-standards)
     -   [Conclusions](#conclusions)
     -   [Frequency of Watershed Low
@@ -52,9 +52,9 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
 
 The Long Creek Watershed, almost three and a half square miles in area,
 is dominated by commercial land use. The Maine Mall is one of the
-largest land owners in the watershed, and it is surrounded by a range of
+largest landowners in the watershed, and it is surrounded by a range of
 commercial businesses, from medical offices, to car washes. About a
-third of the watershed in impervious surfaces like roads, parking lots,
+third of the watershed isn impervious surfaces like roads, parking lots,
 and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a
@@ -133,7 +133,7 @@ There are no legally binding Maine criteria for maximum stream
 temperature, but we can back into thresholds based on research on
 thermal tolerance of brook trout in streams. A study from Michigan and
 Wisconsin, showed that trout are found in streams with daily mean water
-temperatures as high as 25.3°C, but only if the period of exceedence of
+temperatures as high as 25.3°C, but only if the period of exceedance of
 that daily average temperature is short – only one day. Similarly, the
 one day daily maximum temperature above which trout were never found was
 27.6°C. That generates two temperature criteria, one for daily averages,
@@ -154,14 +154,20 @@ metrics.
 ``` r
 library(rpart)
 library(rpart.plot)
+#> Warning: package 'rpart.plot' was built under R version 4.0.5
 #library(randomForest)  # random forest models provide little explanatory power.
 
 library(tidyverse)
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
-#> v ggplot2 3.3.3     v purrr   0.3.4
-#> v tibble  3.0.5     v dplyr   1.0.3
-#> v tidyr   1.1.2     v stringr 1.4.0
-#> v readr   1.4.0     v forcats 0.5.0
+#> Warning: package 'tidyverse' was built under R version 4.0.5
+#> -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+#> v ggplot2 3.3.5     v purrr   0.3.4
+#> v tibble  3.1.6     v dplyr   1.0.7
+#> v tidyr   1.1.4     v stringr 1.4.0
+#> v readr   2.1.0     v forcats 0.5.1
+#> Warning: package 'ggplot2' was built under R version 4.0.5
+#> Warning: package 'tidyr' was built under R version 4.0.5
+#> Warning: package 'dplyr' was built under R version 4.0.5
+#> Warning: package 'forcats' was built under R version 4.0.5
 #> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
@@ -204,18 +210,14 @@ fpath <- file.path(sibling, fn)
 
 Site_IC_Data <- read_csv(fpath) %>%
   filter(Site != "--") 
-#> 
+#> Rows: 7 Columns: 8
 #> -- Column specification --------------------------------------------------------
-#> cols(
-#>   Site = col_character(),
-#>   Subwatershed = col_character(),
-#>   Area_ac = col_double(),
-#>   IC_ac = col_double(),
-#>   CumArea_ac = col_double(),
-#>   CumIC_ac = col_double(),
-#>   PctIC = col_character(),
-#>   CumPctIC = col_character()
-#> )
+#> Delimiter: ","
+#> chr (4): Site, Subwatershed, PctIC, CumPctIC
+#> dbl (4): Area_ac, IC_ac, CumArea_ac, CumIC_ac
+#> 
+#> i Use `spec()` to retrieve the full column specification for this data.
+#> i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 # Now, create a factor that preserves the order of rows (roughly upstream to downstream). 
 Site_IC_Data <- Site_IC_Data %>%
@@ -250,7 +252,6 @@ flow estimates
 fn <- "Exceeds_Data.csv"
 exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
   mutate(IC=Site_IC_Data$CumPctIC[match(Site, Site_IC_Data$Site)]) %>%
-  select(-X1) %>%
   filter(Year < 2019) %>%
   mutate(Site = factor(Site, levels=levels(Site_IC_Data$Site))) %>%
   mutate(year_f = factor(Year),
@@ -261,35 +262,23 @@ exceeds = read_csv(file.path(sibling, fn), progress=FALSE) %>%
          season = factor(season, levels = c('Winter', 'Spring', 
                                            'Summer', 'Fall'))) %>%
   mutate(lPrecip = log1p(Precip))
-#> Warning: Missing column names filled in: 'X1' [1]
-#> 
+#> New names:
+#> * `` -> ...1
+#> Rows: 11422 Columns: 19
 #> -- Column specification --------------------------------------------------------
-#> cols(
-#>   X1 = col_double(),
-#>   sdate = col_date(format = ""),
-#>   Site = col_character(),
-#>   Year = col_double(),
-#>   Month = col_double(),
-#>   Precip = col_double(),
-#>   PPrecip = col_double(),
-#>   MaxT = col_double(),
-#>   D_Median = col_double(),
-#>   ClassCDO = col_logical(),
-#>   ClassBDO = col_logical(),
-#>   ClassC_PctSat = col_logical(),
-#>   ClassB_PctSat = col_logical(),
-#>   ClassCBoth = col_logical(),
-#>   ClassBBoth = col_logical(),
-#>   ChlCCC = col_logical(),
-#>   ChlCMC = col_logical(),
-#>   MaxT_ex = col_logical(),
-#>   AvgT_ex = col_logical()
-#> )
+#> Delimiter: ","
+#> chr   (1): Site
+#> dbl   (7): ...1, Year, Month, Precip, PPrecip, MaxT, D_Median
+#> lgl  (10): ClassCDO, ClassBDO, ClassC_PctSat, ClassB_PctSat, ClassCBoth, Cla...
+#> date  (1): sdate
+#> 
+#> i Use `spec()` to retrieve the full column specification for this data.
+#> i Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
 ## Data Corrections
 
-### Anomolous Depth Values
+### Anomalous Depth Values
 
 Several depth observations in the record appear highly unlikely. In
 particular, several observations show daily median water depths over 15
