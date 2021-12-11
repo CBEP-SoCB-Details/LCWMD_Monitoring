@@ -7,7 +7,7 @@ Curtis C. Bohlen, Casco Bay Estuary Partnership.
     -   [Are Water Quality Criteria
         Met?](#are-water-quality-criteria-met)
     -   [Sources of Threshold Values](#sources-of-threshold-values)
-        -   [Dissolved oxygen](#dissolved-oxygen)
+        -   [Dissolved Oxygen](#dissolved-oxygen)
         -   [Chloride](#chloride)
         -   [Temperature](#temperature)
 -   [Import Libraries](#import-libraries)
@@ -54,7 +54,7 @@ The Long Creek Watershed, almost three and a half square miles in area,
 is dominated by commercial land use. The Maine Mall is one of the
 largest landowners in the watershed, and it is surrounded by a range of
 commercial businesses, from medical offices, to car washes. About a
-third of the watershed isn impervious surfaces like roads, parking lots,
+third of the watershed is impervious surfaces like roads, parking lots,
 and rooftops.
 
 Landowners with an acre or more of impervious area are required to get a
@@ -93,7 +93,7 @@ conditions. “FALSE” implies bad conditions.
 
 ## Sources of Threshold Values
 
-### Dissolved oxygen
+### Dissolved Oxygen
 
 Maine’s Class B water quality standards call for dissolved oxygen above
 7 mg/l, with percent saturation above 75%. The Class C Standards, which
@@ -246,7 +246,7 @@ which may bias annual summaries.
 
 Note that this data does NOT include all of the predictors used in some
 models looking at chlorides. In particular, it does not include stream
-flow estimates
+flow estimates.
 
 ``` r
 fn <- "Exceeds_Data.csv"
@@ -406,7 +406,7 @@ pass water quality criteria.
 
 The following code creates a data frame where TRUE is closely associated
 with group A, and FALSE with group B. The modifiers are just random
-noise. We want to look at how the tree is displayed
+noise. We want to look at how the tree is displayed.
 
 ``` r
 set.seed(12345)
@@ -691,7 +691,7 @@ plotcp(psat_tree)
 
 <img src="rpart_models_files/figure-gfm/unnamed-chunk-7-1.png" style="display: block; margin: auto;" />
 
-Remember “True” means the site PASSES water quality criteria. The
+Remember “True” means the site PASSES water quality criteria.
 
 ``` r
 rpart.plot(psat_tree)
@@ -753,7 +753,7 @@ plotcp(chl_tree)
 
 <img src="rpart_models_files/figure-gfm/unnamed-chunk-10-1.png" style="display: block; margin: auto;" />
 
-Remember “True” means the site PASSES water quality criteria. The
+Remember “True” means the site PASSES water quality criteria.
 
 ``` r
 rpart.plot(chl_tree)
@@ -811,7 +811,7 @@ plotcp(chl_tree_2)
 chl_tree_2 <- prune(chl_tree_2, 0.02)
 ```
 
-Remember “True” means the site PASSES water quality criteria. The
+Remember “True” means the site PASSES water quality criteria.
 
 ``` r
 rpart.plot(chl_tree_2)
@@ -849,7 +849,7 @@ printcp(temp_tree)
 #> 2 0.010000      2   0.94747 1.0067 0.24217
 ```
 
-Remember “True” means the site PASSES water quality criteria. The
+Remember “True” means the site PASSES water quality criteria.
 
 ``` r
 rpart.plot(temp_tree)
